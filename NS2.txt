@@ -1,0 +1,150 @@
+// Lab 1
+
+set ns [new Simulator]
+set namfile [open wired.nam w] $ns namtrace-all $namfile
+set tracefile [open wired.tr w]
+$ns trace-all $tracefile
+set n0 [$ns node] set n1 [$ns node] set n2 [$ns node] set n3 [$ns node]
+$ns duplex-link $n0 $n1 2Mb 1ms DropTail
+$ns duplex-link $n1 $n2 2Mb 1ms RED
+$ns duplex-link $n2 $n3 2Mb 1ms SFQ
+$ns at 1.0 "$n0 label Source_Node"
+$ns at 1.0 "$n3 label Destination_Node"
+$n0 color red
+$n1 color blue
+$n2 color green $n3 color orange
+set tcp [new Agent/TCP] set sink [new Agent/TCPSink]
+$ns attach-agent $n0 $tcp $ns attach-agent $n3 $sink
+set ftp [new Application/FTP] $ftp attach-agent $tcp
+$ns connect $tcp $sink
+$ns at 0.5 "$ftp start" $ns at 5.0 "finish"
+proc finish {} { global ns namfile tracefile $ns flush-trace close $namfile close $tracefile
+exec nam wired.nam & exit 0
+}
+$ns run
+
+// Lab 2
+
+set ns [new Simulator]
+# Define Options
+set val(chan) Channel/WirelessChannel;	# Channel type set val(prop) Propagation/TwoRayGround;	# Radio propagation model
+set val(netif) Phy/WirelessPhy;	# Network interface type set val(mac) Mac/802_11;	# MAC type
+set val(ifq) Queue/DropTail/PriQueue;	# Interface Queue type
+set val(ll) LL;	# Link Layer type
+set val(ant) Antenna/OmniAntenna;	# Antenna model
+set val(ifqlen) 50;	# Max packet in ifq
+set val(nn) 2;	# Number of nodes
+set val(rp) DSDV;	# Routing Protocol
+set val(x) 500;	# X dimension of the topography
+set val(y) 400;	# Y dimension of the topography
+set val(stop) 10.0;	# Simulation time
+# Setup topography object set topo [new Topography]
+$topo load_flatgrid $val(x) $val(y)
+# Create a trace file for NAM visualization set namfile [open sample3.nam w]
+$ns namtrace-all-wireless $namfile $val(x) $val(y)
+# Create a trace file for simulation analysis set tracefile [open sample3.tr w] $ns trace-all $tracefile
+# Create the General Operations Director (GOD) create-god $val(nn)
+# Configure the nodes
+$ns node-config -adhocRouting $val(rp) \
+-llType $val(ll) \
+-macType $val(mac) \
+-ifqType $val(ifq) \
+-ifqLen $val(ifqlen) \
+-antType $val(ant) \
+-propType $val(prop) \
+-phyType $val(netif) \
+-channelType $val(chan) \
+-topoInstance $topo \
+-agentTrace ON \
+-routerTrace ON \
+-macTrace ON \
+-movementTrace ON
+# Create two nodes set n0 [$ns node] $n0 set X_ 50.0
+$n0 set Y_ 50.0 $n0 set Z_ 0.0 set n1 [$ns node] $n1 set X_ 150.0 $n1 set Y_ 150.0 $n1 set Z_ 0.0
+# Define node movement
+$ns at 0.0 "$n0 setdest 100.0 200.0 5.0"
+$ns at 0.0 "$n1 setdest 200.0 300.0 5.0"
+# Define a CBR traffic source between the two nodes set udp0 [new Agent/UDP] $ns attach-agent $n0 $udp0
+set null0 [new Agent/Null] $ns attach-agent $n1 $null0 $ns connect $udp0 $null0
+set cbr0 [new Application/Traffic/CBR]
+$cbr0 set packetSize_ 1000
+$cbr0 set interval_ 0.005
+$cbr0 attach-agent $udp0
+$ns at 1.0 "$cbr0 start" $ns at 9.0 "$cbr0 stop"
+# Terminate the simulation
+$ns at $val(stop) "$ns halt"
+# Run the simulation
+$ns run
+
+// Lab 3
+
+#initialize the variables
+set val(chan)		Channel/WirelessChannel	;#Channel Type
+set val(prop)		Propagation/TwoRayGround	;# radio-propagation model
+set val(netif)
+2.4GHz		Phy/WirelessPhy	;# network interface type WAVELAN DSSS
+set val(mac)		Mac/802_11	;# MAC type
+set val(ifq)	Queue/DropTail/PriQueue	;# interface queue type
+set val(ll)	LL	;# link layer type
+set val(ant)		Antenna/OmniAntenna	;# antenna model
+set val(ifqlen)		50	;# max packet in ifq
+set val(nn)		15	;# number of mobilenodes
+set val(rp)		AODV	;# routing protocol
+set val(x) 500	;# in metres
+set val(y) 500	;# in metres
+set val(stop) 3	;
+set val(energymodel) EnergyModel	;
+set val(initialenergy) 1000	;
+#Adhoc OnDemand Distance Vector
+#creation of Simulator set ns [new Simulator]
+#creation of Trace and namfile set tf [open assign_3.tr w] $ns trace-all $tf
+#Creation of Network Animation file set nf [open assign_3.nam w]
+$ns namtrace-all-wireless $nf $val(x) $val(y)
+#create topography set topo [new Topography]
+$topo load_flatgrid $val(x) $val(y)
+#GOD Creation - General Operations Director create-god $val(nn)
+set channel1 [new $val(chan)] set channel2 [new $val(chan)]
+#configure the node
+$ns node-config -adhocRouting $val(rp) \
+-llType $val(ll) \
+-macType $val(mac) \
+-ifqType $val(ifq) \
+-ifqLen $val(ifqlen) \
+-antType $val(ant) \
+-propType $val(prop) \
+-phyType $val(netif) \
+-topoInstance $topo \
+-agentTrace ON \
+-macTrace ON \
+-routerTrace ON \
+-movementTrace ON \
+-channel $channel1
+for {set i 0} {$i < $val(nn)} {incr i} { set node_($i) [$ns node]
+$node_($i) set X_ [ expr 10+round(rand()*480) ]
+$node_($i) set Y_ [ expr 10+round(rand()*380) ]
+$node_($i) set Z_ 0.0
+}
+for {set i 0} {$i < $val(nn)} {incr i} {
+$ns at [ expr 0.2+round(rand()) ] "$node_($i) setdest [ expr 10+round(rand()*480) ]
+[expr 10+round(rand()*380) ] [expr 60+round(rand()*30) ]" }
+#$ns duplex-link $node_(5) $node_(2) 2Mb 10ms DropTail
+set udp [new Agent/UDP] $ns attach-agent $node_(5) $udp set null [new Agent/Null] $ns attach-agent $node_(2) $null set cbr [new Application/Traffic/CBR]
+$cbr attach-agent $udp
+$cbr set packetSize_ 512
+$cbr set interval_ 0.1
+$cbr set rate_ 1mb
+$cbr set maxpkts_ 10000
+$ns connect $udp $null $ns at 0.4 "$cbr start"
+for {set i 0} {$i < $val(nn)} {incr i} {
+$ns initial_node_pos $node_($i) 30
+}
+for {set i 0} {$i < $val(nn)} {incr i} {
+$ns at $val(stop) "$node_($i) reset";
+}
+#$ns at $val(stop) "$ns nam-end-wireless $val(stop)"
+$ns at $val(stop) "finish"
+$ns at 3.1 "puts \"end simulation\"; $ns halt"
+proc finish {} { global ns tf nf $ns flush-trace close $tf
+close $nf exec nam assign_3.nam & exit 0 }
+puts "CBR packet size = [$cbr set packetSize_]" puts "CBR interval = [$cbr set interval_]"
+$ns run

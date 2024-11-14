@@ -1,0 +1,408 @@
+### **Lab 4: Android Permission**
+
+#### **MainActivity.java**
+
+```java
+package com.example.permissionscontrol;
+
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+public class MainActivity extends AppCompatActivity {
+
+    private static final int CAMERA_PERMISSION_CODE = 100;
+    private static final int LOCATION_PERMISSION_CODE = 101;
+    private static final int STORAGE_PERMISSION_CODE = 102;
+    private static final int CONTACTS_PERMISSION_CODE = 103;
+    private static final int MICROPHONE_PERMISSION_CODE = 104;
+
+    private Button cameraButton;
+    private Button locationButton;
+    private Button storageButton;
+    private Button contactsButton;
+    private Button microphoneButton;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        cameraButton = findViewById(R.id.cameraButton);
+        locationButton = findViewById(R.id.locationButton);
+        storageButton = findViewById(R.id.storageButton);
+        contactsButton = findViewById(R.id.contactsButton);
+        microphoneButton = findViewById(R.id.microphoneButton);
+
+        cameraButton.setOnClickListener(v -> askForPermission(Manifest.permission.CAMERA, CAMERA_PERMISSION_CODE));
+        locationButton.setOnClickListener(v -> askForPermission(Manifest.permission.ACCESS_FINE_LOCATION, LOCATION_PERMISSION_CODE));
+        storageButton.setOnClickListener(v -> askForPermission(Manifest.permission.READ_EXTERNAL_STORAGE, STORAGE_PERMISSION_CODE));
+        contactsButton.setOnClickListener(v -> askForPermission(Manifest.permission.READ_CONTACTS, CONTACTS_PERMISSION_CODE));
+        microphoneButton.setOnClickListener(v -> askForPermission(Manifest.permission.RECORD_AUDIO, MICROPHONE_PERMISSION_CODE));
+    }
+
+    private void askForPermission(String permission, int requestCode) {
+        if (ContextCompat.checkSelfPermission(MainActivity.this, permission) == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{permission}, requestCode);
+        } else {
+            Toast.makeText(MainActivity.this, "Permission already granted", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            switch (requestCode) {
+                case CAMERA_PERMISSION_CODE:
+                    Toast.makeText(this, "Camera Permission Granted", Toast.LENGTH_SHORT).show();
+                    break;
+                case LOCATION_PERMISSION_CODE:
+                    Toast.makeText(this, "Location Permission Granted", Toast.LENGTH_SHORT).show();
+                    break;
+                case STORAGE_PERMISSION_CODE:
+                    Toast.makeText(this, "Storage Permission Granted", Toast.LENGTH_SHORT).show();
+                    break;
+                case CONTACTS_PERMISSION_CODE:
+                    Toast.makeText(this, "Contacts Permission Granted", Toast.LENGTH_SHORT).show();
+                    break;
+                case MICROPHONE_PERMISSION_CODE:
+                    Toast.makeText(this, "Microphone Permission Granted", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        } else {
+            switch (requestCode) {
+                case CAMERA_PERMISSION_CODE:
+                    Toast.makeText(this, "Camera Permission Denied", Toast.LENGTH_SHORT).show();
+                    break;
+                case LOCATION_PERMISSION_CODE:
+                    Toast.makeText(this, "Location Permission Denied", Toast.LENGTH_SHORT).show();
+                    break;
+                case STORAGE_PERMISSION_CODE:
+                    Toast.makeText(this, "Storage Permission Denied", Toast.LENGTH_SHORT).show();
+                    break;
+                case CONTACTS_PERMISSION_CODE:
+                    Toast.makeText(this, "Contacts Permission Denied", Toast.LENGTH_SHORT).show();
+                    break;
+                case MICROPHONE_PERMISSION_CODE:
+                    Toast.makeText(this, "Microphone Permission Denied", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    }
+}
+```
+
+---
+
+#### **activity_main.xml**
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp">
+
+    <Button
+        android:id="@+id/cameraButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Request Camera Permission" />
+
+    <Button
+        android:id="@+id/locationButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Request Location Permission"
+        android:layout_marginTop="20dp" />
+
+    <Button
+        android:id="@+id/storageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Request Storage Permission"
+        android:layout_marginTop="20dp" />
+
+    <Button
+        android:id="@+id/contactsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Request Contacts Permission"
+        android:layout_marginTop="20dp" />
+
+    <Button
+        android:id="@+id/microphoneButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Request Microphone Permission"
+        android:layout_marginTop="20dp" />
+
+</LinearLayout>
+```
+
+---
+
+#### **AndroidManifest.xml**
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.permissionscontrol">
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <application
+        android:allowBackup="true"
+        android:label="PermissionApp"
+        android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+    </application>
+
+</manifest>
+```
+
+---
+
+**Lab 5 code will continue in the next response due to length limits.**
+
+### **Lab 5: File Encryption and Decryption App**
+
+Here’s the full implementation for Lab 5:
+
+---
+
+#### **EncryptDecryptUtil.java**
+
+This utility class provides methods for file encryption and decryption.
+
+```java
+package com.example.fileencryption;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.security.Key;
+import java.security.SecureRandom;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
+public class EncryptDecryptUtil {
+
+    private static final String ALGORITHM = "AES";
+
+    // Generate an AES key
+    public static SecretKey generateKey() throws Exception {
+        KeyGenerator keyGen = KeyGenerator.getInstance(ALGORITHM);
+        SecureRandom secureRandom = new SecureRandom();
+        keyGen.init(128, secureRandom);
+        return keyGen.generateKey();
+    }
+
+    // Encrypt a file
+    public static void encryptFile(Key key, File inputFile, File outputFile) throws Exception {
+        processFile(Cipher.ENCRYPT_MODE, key, inputFile, outputFile);
+    }
+
+    // Decrypt a file
+    public static void decryptFile(Key key, File inputFile, File outputFile) throws Exception {
+        processFile(Cipher.DECRYPT_MODE, key, inputFile, outputFile);
+    }
+
+    private static void processFile(int cipherMode, Key key, File inputFile, File outputFile) throws Exception {
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        cipher.init(cipherMode, key);
+
+        FileInputStream inputStream = new FileInputStream(inputFile);
+        byte[] inputBytes = new byte[(int) inputFile.length()];
+        inputStream.read(inputBytes);
+
+        byte[] outputBytes = cipher.doFinal(inputBytes);
+
+        FileOutputStream outputStream = new FileOutputStream(outputFile);
+        outputStream.write(outputBytes);
+
+        inputStream.close();
+        outputStream.close();
+    }
+}
+```
+
+---
+
+#### **MainActivity.java**
+
+This activity interacts with the user to encrypt and decrypt files.
+
+```java
+package com.example.fileencryption;
+
+import android.os.Bundle;
+import android.os.Environment;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import java.io.File;
+
+import javax.crypto.SecretKey;
+
+public class MainActivity extends AppCompatActivity {
+
+    private TextView resultTextView;
+    private Button encryptButton;
+    private Button decryptButton;
+
+    private File inputFile;
+    private File encryptedFile;
+    private File decryptedFile;
+    private SecretKey secretKey;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        resultTextView = findViewById(R.id.resultTextView);
+        encryptButton = findViewById(R.id.encryptButton);
+        decryptButton = findViewById(R.id.decryptButton);
+
+        // File paths
+        inputFile = new File(Environment.getExternalStorageDirectory(), "input.txt");
+        encryptedFile = new File(Environment.getExternalStorageDirectory(), "encrypted.txt");
+        decryptedFile = new File(Environment.getExternalStorageDirectory(), "decrypted.txt");
+
+        try {
+            secretKey = EncryptDecryptUtil.generateKey();
+        } catch (Exception e) {
+            resultTextView.setText("Error generating key: " + e.getMessage());
+        }
+
+        encryptButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    EncryptDecryptUtil.encryptFile(secretKey, inputFile, encryptedFile);
+                    resultTextView.setText("Encryption successful! File saved at: " + encryptedFile.getAbsolutePath());
+                } catch (Exception e) {
+                    resultTextView.setText("Encryption failed: " + e.getMessage());
+                }
+            }
+        });
+
+        decryptButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    EncryptDecryptUtil.decryptFile(secretKey, encryptedFile, decryptedFile);
+                    resultTextView.setText("Decryption successful! File saved at: " + decryptedFile.getAbsolutePath());
+                } catch (Exception e) {
+                    resultTextView.setText("Decryption failed: " + e.getMessage());
+                }
+            }
+        });
+    }
+}
+```
+
+---
+
+#### **activity_main.xml**
+
+This XML defines the layout for the MainActivity.
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/resultTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Result will be displayed here"
+        android:layout_marginBottom="20dp" />
+
+    <Button
+        android:id="@+id/encryptButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Encrypt File" />
+
+    <Button
+        android:id="@+id/decryptButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Decrypt File"
+        android:layout_marginTop="20dp" />
+</LinearLayout>
+```
+
+---
+
+#### **AndroidManifest.xml**
+
+Ensure permissions are added for external storage access.
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.fileencryption">
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:allowBackup="true"
+        android:label="FileEncryptionApp"
+        android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
+```
+
+---
+
+### Notes:
+1. **Testing**: Ensure `input.txt` exists in the `ExternalStorage` directory on your device/emulator.
+2. **Permissions**: You might need to request runtime permissions for file access on newer Android versions. 
+
+These two projects cover permission handling and file encryption/decryption using AES. Let me know if you need any further customization!
